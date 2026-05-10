@@ -1,5 +1,17 @@
 # LBFGS++ <img src="https://statr.me/images/sticker-lbfgspp.png" alt="LBFGS++" height="150px" align="right" />
 
+>
+> About the fork:
+> 
+> We are compiling with -f-no-exceptions, and this library uses exceptions.
+> So we removed them in favor of std::abort. This needs to be cleaned up; some
+> of these could be converted to Assert(), as they test constant parameters.
+> 
+> For the others, we need to add an Optional or similar return type so we can
+> return errors.
+>
+
+
 > **UPDATE on 2020-03-06**: **LBFGS++** now includes a new L-BFGS-B solver for
 > box-constrained optimization problems. Check the example below for its usage.
 

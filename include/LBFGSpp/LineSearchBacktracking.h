@@ -5,7 +5,9 @@
 #define LBFGSPP_LINE_SEARCH_BACKTRACKING_H
 
 #include <Eigen/Core>
+#if defined(__cpp_exceptions) || defined(__EXCEPTIONS) || defined(_CPPUNWIND)
 #include <stdexcept>  // std::runtime_error
+#endif
 #include "Param.h"
 
 namespace LBFGSpp {
@@ -51,16 +53,26 @@ public:
         const Scalar inc = 2.1;
 
         // Check the value of step
-        if (step <= Scalar(0))
+        if (step <= Scalar(0)) {
+#if defined(__cpp_exceptions) || defined(__EXCEPTIONS) || defined(_CPPUNWIND)
             throw std::invalid_argument("'step' must be positive");
+#else
+            std::abort();
+#endif
+        }
 
         // Save the function value at the current x
         const Scalar fx_init = fx;
         // Projection of gradient on the search direction
         const Scalar dg_init = grad.dot(drt);
         // Make sure d points to a descent direction
-        if (dg_init > 0)
+        if (dg_init > 0) {
+#if defined(__cpp_exceptions) || defined(__EXCEPTIONS) || defined(_CPPUNWIND)
             throw std::logic_error("the moving direction increases the objective function value");
+#else
+            std::abort();
+#endif
+        }
 
         const Scalar test_decr = param.ftol * dg_init;
         Scalar width;
@@ -107,17 +119,31 @@ public:
                 }
             }
 
+#if defined(__cpp_exceptions) || defined(__EXCEPTIONS) || defined(_CPPUNWIND)
             if (step < param.min_step)
                 throw std::runtime_error("the line search step became smaller than the minimum value allowed");
 
             if (step > param.max_step)
                 throw std::runtime_error("the line search step became larger than the maximum value allowed");
+#else 
+            if (step < param.min_step)
+                std::abort();
+            
+            if (step > param.max_step)
+                std::abort();
+#endif
 
             step *= width;
         }
 
-        if (iter >= param.max_linesearch)
+        if (iter >= param.max_linesearch) {
+#if defined(__cpp_exceptions) || defined(__EXCEPTIONS) || defined(_CPPUNWIND)
             throw std::runtime_error("the line search routine reached the maximum number of iterations");
+#else
+            std::abort();
+#endif
+
+        }
     }
 };
 

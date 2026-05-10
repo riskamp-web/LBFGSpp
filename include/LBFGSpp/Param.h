@@ -5,7 +5,10 @@
 #define LBFGSPP_PARAM_H
 
 #include <Eigen/Core>
+
+#if defined(__cpp_exceptions) || defined(__EXCEPTIONS) || defined(_CPPUNWIND)
 #include <stdexcept>  // std::invalid_argument
+#endif
 
 namespace LBFGSpp {
 

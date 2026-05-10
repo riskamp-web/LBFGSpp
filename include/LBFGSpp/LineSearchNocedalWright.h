@@ -6,7 +6,9 @@
 #define LBFGSPP_LINE_SEARCH_NOCEDAL_WRIGHT_H
 
 #include <Eigen/Core>
+#if defined(__cpp_exceptions) || defined(__EXCEPTIONS) || defined(_CPPUNWIND)
 #include <stdexcept>
+#endif
 #include "Param.h"
 
 namespace LBFGSpp {
@@ -89,11 +91,21 @@ public:
         using std::abs;
 
         // Check the value of step
-        if (step <= Scalar(0))
+        if (step <= Scalar(0)) {
+#if defined(__cpp_exceptions) || defined(__EXCEPTIONS) || defined(_CPPUNWIND)
             throw std::invalid_argument("'step' must be positive");
+#else
+            std::abort();
+#endif
+        }
 
-        if (param.linesearch != LBFGS_LINESEARCH_BACKTRACKING_STRONG_WOLFE)
+        if (param.linesearch != LBFGS_LINESEARCH_BACKTRACKING_STRONG_WOLFE) {
+#if defined(__cpp_exceptions) || defined(__EXCEPTIONS) || defined(_CPPUNWIND)
             throw std::invalid_argument("'param.linesearch' must be 'LBFGS_LINESEARCH_BACKTRACKING_STRONG_WOLFE' for LineSearchNocedalWright");
+#else
+            std::abort();
+#endif
+        }
 
         // To make this implementation more similar to the other line search
         // methods in LBFGSpp, the symbol names from the literature
@@ -113,8 +125,13 @@ public:
         // Projection of gradient on the search direction
         const Scalar dg_init = dg;
         // Make sure d points to a descent direction
-        if (dg_init > Scalar(0))
+        if (dg_init > Scalar(0)) {
+#if defined(__cpp_exceptions) || defined(__EXCEPTIONS) || defined(_CPPUNWIND)
             throw std::logic_error("the moving direction increases the objective function value");
+#else 
+            std::abort();
+#endif
+        }
 
         const Scalar test_decr = param.ftol * dg_init,  // Sufficient decrease
             test_curv = -param.wolfe * dg_init;         // Curvature
@@ -223,8 +240,13 @@ public:
             // Test the sufficient decrease condition
             if (fx - fx_init > step * test_decr || fx >= fx_lo)
             {
-                if (step == step_hi)
+                if (step == step_hi) {
+#if defined(__cpp_exceptions) || defined(__EXCEPTIONS) || defined(_CPPUNWIND)
                     throw std::runtime_error("the line search routine failed, possibly due to insufficient numeric precision");
+#else 
+                    std::abort();
+#endif
+                }
 
                 step_hi = step;
                 fx_hi = fx;
@@ -243,8 +265,13 @@ public:
                     // dg_hi = dg_lo;
                 }
 
-                if (step == step_lo)
+                if (step == step_lo) {
+#if defined(__cpp_exceptions) || defined(__EXCEPTIONS) || defined(_CPPUNWIND)
                     throw std::runtime_error("the line search routine failed, possibly due to insufficient numeric precision");
+#else 
+                    std::abort();
+#endif
+                }
 
                 // If reaching here, then the current step satisfies sufficient decrease condition
                 step_lo = step;
@@ -263,8 +290,13 @@ public:
             if (iter >= param.max_linesearch)
             {
                 // throw std::runtime_error("the line search routine reached the maximum number of iterations");
-                if (step_lo <= Scalar(0))
+                if (step_lo <= Scalar(0)) {
+#if defined(__cpp_exceptions) || defined(__EXCEPTIONS) || defined(_CPPUNWIND)
                     throw std::runtime_error("the line search routine failed, unable to sufficiently decrease the function value");
+#else
+                    std::abort();
+#endif
+                }
 
                 // Return everything with _lo
                 step = step_lo;

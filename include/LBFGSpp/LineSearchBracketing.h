@@ -6,7 +6,9 @@
 #define LBFGSPP_LINE_SEARCH_BRACKETING_H
 
 #include <Eigen/Core>
+#if defined(__cpp_exceptions) || defined(__EXCEPTIONS) || defined(_CPPUNWIND)
 #include <stdexcept>  // std::runtime_error
+#endif
 #include <cmath>
 #include "Param.h"
 
@@ -51,16 +53,25 @@ public:
                            Scalar& step, Scalar& fx, Vector& grad, Scalar& dg, Vector& x)
     {
         // Check the value of step
-        if (step <= Scalar(0))
+        if (step <= Scalar(0)) {
+#if defined(__cpp_exceptions) || defined(__EXCEPTIONS) || defined(_CPPUNWIND)
             throw std::invalid_argument("'step' must be positive");
+#else
+            std::abort();
+#endif
+        }
 
         // Save the function value at the current x
         const Scalar fx_init = fx;
         // Projection of gradient on the search direction
         const Scalar dg_init = grad.dot(drt);
         // Make sure d points to a descent direction
-        if (dg_init > 0)
+        if (dg_init > 0) {
+#if defined(__cpp_exceptions) || defined(__EXCEPTIONS) || defined(_CPPUNWIND)
             throw std::logic_error("the moving direction increases the objective function value");
+#else 
+            std::abort();
+#endif
 
         const Scalar test_decr = param.ftol * dg_init;
 
@@ -110,6 +121,7 @@ public:
                 }
             }
 
+#if defined(__cpp_exceptions) || defined(__EXCEPTIONS) || defined(_CPPUNWIND)
             if (step_lo > step_hi)
                 throw std::runtime_error("the lower bound of the bracketing interval becomes larger than the upper bound");
 
@@ -118,13 +130,28 @@ public:
 
             if (step > param.max_step)
                 throw std::runtime_error("the line search step became larger than the maximum value allowed");
+#else 
+            if (step_lo > step_hi)
+                std::abort();
+            
+            if (step < param.min_step)
+                std::abort();
+
+            if (step > param.max_step)
+                std::abort();
+#endif
 
             // continue search in mid of current search range
             step = std::isinf(step_hi) ? 2 * step : step_lo / 2 + step_hi / 2;
         }
 
-        if (iter >= param.max_linesearch)
+        if (iter >= param.max_linesearch) {
+#if defined(__cpp_exceptions) || defined(__EXCEPTIONS) || defined(_CPPUNWIND)
             throw std::runtime_error("the line search routine reached the maximum number of iterations");
+#else
+            std::abort();
+#endif
+        }
     }
 };
 

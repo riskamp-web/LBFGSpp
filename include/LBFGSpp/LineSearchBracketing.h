@@ -72,6 +72,7 @@ public:
 #else 
             std::abort();
 #endif
+        }
 
         const Scalar test_decr = param.ftol * dg_init;
 

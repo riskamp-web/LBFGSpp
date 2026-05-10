@@ -389,8 +389,13 @@ public:
         // std::cout << "fx_init = " << fx_init << ", dg_init = " << dg_init << std::endl << std::endl;
 
         // Make sure d points to a descent direction
-        if (dg_init >= Scalar(0))
+        if (dg_init >= Scalar(0)) {
+#if defined(__cpp_exceptions) || defined(__EXCEPTIONS) || defined(_CPPUNWIND)
             throw std::logic_error("the moving direction does not decrease the objective function value");
+#else 
+            std::abort();
+#endif
+        }
 
         // Tolerance for convergence test
         // Sufficient decrease

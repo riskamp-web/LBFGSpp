@@ -4,7 +4,10 @@
 #ifndef LBFGSPP_LBFGSB_H
 #define LBFGSPP_LBFGSB_H
 
-#include <stdexcept>  // std::invalid_argument
+#if defined(__cpp_exceptions) || defined(__EXCEPTIONS) || defined(_CPPUNWIND)
+  #include <stdexcept>  // std::invalid_argument
+#endif
+
 #include <vector>
 #include <Eigen/Core>
 #include "LBFGSpp/Param.h"
@@ -120,8 +123,13 @@ public:
 
         // Dimension of the vector
         const int n = x.size();
-        if (lb.size() != n || ub.size() != n)
+        if (lb.size() != n || ub.size() != n) {
+#if defined(__cpp_exceptions) || defined(__EXCEPTIONS) || defined(_CPPUNWIND)
             throw std::invalid_argument("'lb' and 'ub' must have the same size as 'x'");
+#else 
+            std::abort();
+#endif
+        }
 
         // Check whether the initial vector is within the bounds
         // If not, project to the feasible set

@@ -358,12 +358,26 @@ public:
 
         // Check the value of step
         const Scalar step_min = param.min_step;
-        if (step <= Scalar(0))
+
+#if defined(__cpp_exceptions) || defined(__EXCEPTIONS) || defined(_CPPUNWIND)
+
+        if (step <= Scalar(0)) 
             throw std::invalid_argument("'step' must be positive");
         if (step < step_min)
             throw std::invalid_argument("'step' is smaller than 'param.min_step'");
         if (step > step_max)
             throw std::invalid_argument("'step' exceeds 'step_max'");
+
+#else
+
+        if (step <= Scalar(0)) 
+            std::abort();
+        if (step < step_min)
+            std::abort();
+        if (step > step_max)
+            std::abort();
+
+#endif
 
         // Save the function value at the current x
         const Scalar fx_init = fx;

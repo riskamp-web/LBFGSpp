@@ -190,6 +190,9 @@ public:
     ///
     inline void check_param() const
     {
+
+#if defined(__cpp_exceptions) || defined(__EXCEPTIONS) || defined(_CPPUNWIND)
+
         if (m <= 0)
             throw std::invalid_argument("'m' must be positive");
         if (epsilon < 0)
@@ -215,6 +218,37 @@ public:
             throw std::invalid_argument("'ftol' must satisfy 0 < ftol < 0.5");
         if (wolfe <= ftol || wolfe >= 1)
             throw std::invalid_argument("'wolfe' must satisfy ftol < wolfe < 1");
+
+#else
+
+        if (m <= 0)
+          std::abort();
+        if (epsilon < 0)
+          std::abort();
+        if (epsilon_rel < 0)
+          std::abort();
+        if (past < 0)
+          std::abort();
+        if (delta < 0)
+          std::abort();
+        if (max_iterations < 0)
+          std::abort();
+        if (linesearch < LBFGS_LINESEARCH_BACKTRACKING_ARMIJO ||
+            linesearch > LBFGS_LINESEARCH_BACKTRACKING_STRONG_WOLFE)
+          std::abort();
+        if (max_linesearch <= 0)
+          std::abort();
+        if (min_step < 0)
+          std::abort();
+        if (max_step < min_step)
+          std::abort();
+        if (ftol <= 0 || ftol >= 0.5)
+          std::abort();
+        if (wolfe <= ftol || wolfe >= 1)
+          std::abort();
+
+#endif
+            
     }
 };
 
